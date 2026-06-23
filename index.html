@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    :root {
+      --bg:        #09090f;
+      --s1:        #12121c;
+      --s2:        #191926;
+      --s3:        #21212f;
+      --border:    #272738;
+      --border2:   #32324a;
+      --text:      #eeeef8;
+      --text2:     #8585a0;
+      --text3:     #484862;
+      --accent:    #5b8ef0;
+      --accent2:   #7aa5f8;
+      --adim:      rgba(91,142,240,.11);
+      --aglow:     rgba(91,142,240,.28);
+      --green:     #34d399;
+      --gdim:      rgba(52,211,153,.09);
+      --gtext:     #6ee7b7;
+      --yellow:    #fbbf24;
+      --ydim:      rgba(251,191,36,.08);
+      --ytext:     #fde68a;
+      --r:8px; --rmd:12px; --rlg:16px; --rxl:20px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5; }
+
+    /* ── NAV ── */
+    .nav {
+      position:sticky; top:0; z-index:100;
+      background:rgba(9,9,15,.88); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:14px; padding:0 20px; height:58px;
+    }
+    .brand { font-size:12px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
+    .brand em { font-style:normal; color:var(--accent2); }
+    .vr { width:1px; height:22px; background:var(--border); flex-shrink:0; }
+    .tabs { display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; flex:1; }
+    .tabs::-webkit-scrollbar { display:none; }
+    .tab {
+      display:flex; align-items:center; gap:6px; padding:6px 14px;
+      border-radius:var(--r); border:1px solid transparent;
+      background:transparent; cursor:pointer; font-size:13px; font-weight:500;
+      color:var(--text2); transition:all .15s; white-space:nowrap; font-family:inherit;
+    }
+    .tab i { font-size:15px; }
+    .tab:hover:not(.active) { background:var(--s2); color:var(--text); }
+    .tab.active { background:var(--adim); color:var(--accent2); border-color:rgba(91,142,240,.22); }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width:860px; margin:0 auto; padding:0 20px 72px; }
+
+    /* ── PANEL ── */
+    .panel { display:none; }
+    .panel.active { display:block; animation:fadein .2s ease; }
+    @keyframes fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── SECTION LABEL ── */
+    .slabel {
+      font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase;
+      letter-spacing:.1em; margin:32px 0 12px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .slabel::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* ── HERO ── */
+    .hero { text-align:center; padding:52px 0 36px; }
+    .hero-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:11px; font-weight:600; color:var(--accent2); text-transform:uppercase; letter-spacing:.1em;
+      background:var(--adim); border:1px solid rgba(91,142,240,.2); padding:4px 14px; border-radius:20px;
+      margin-bottom:18px;
+    }
+    .hero h1 {
+      font-size:clamp(30px,6vw,54px); font-weight:800; letter-spacing:-.025em; line-height:1.08;
+      margin-bottom:12px;
+      background:linear-gradient(135deg,#eeeef8 0%,var(--accent2) 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .hero-sub { font-size:15px; color:var(--text2); margin-bottom:32px; line-height:1.5; }
+    .hero-sub strong { color:var(--text); font-weight:600; }
+    .stat-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .stat {
+      background:var(--s1); border:1px solid var(--border); border-radius:var(--rlg);
+      padding:16px 22px; text-align:center; min-width:108px; flex:1; max-width:160px;
+      transition:border-color .15s;
+    }
+    .stat:hover { border-color:var(--border2); }
+    .stat-n { font-size:26px; font-weight:800; color:var(--accent2); line-height:1; margin-bottom:4px; }
+    .stat-l { font-size:10px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.07em; }
+
+    /* ── CONCEPT CARDS (top summary) ── */
+    .info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+    .info-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--rlg); padding:16px 18px; }
+    .info-lbl { font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+    .info-val { font-size:14px; font-weight:600; color:var(--text); line-height:1.35; }
+    .info-sub { font-size:12px; color:var(--text2); margin-top:3px; }
+
+    /* ── RPE ── */
+    .rpe-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--rlg); padding:22px 24px; }
+    .rpe-card p { font-size:13px; color:var(--text2); line-height:1.65; margin-bottom:14px; }
+    .rpe-highlight {
+      font-size:13px; font-weight:600; color:var(--text); line-height:1.55;
+      background:var(--s2); border-left:3px solid var(--accent); border-radius:0 var(--r) var(--r) 0;
+      padding:10px 14px; margin-bottom:18px;
+    }
+    .rpe-bar { display:flex; gap:5px; margin-bottom:5px; }
+    .rpe-blk { flex:1; height:8px; border-radius:4px; background:var(--s3); }
+    .rpe-blk.on { background:var(--accent); }
+    .rpe-cap { font-size:11px; color:var(--text3); text-align:right; }
+
+    /* ── TEMPO ── */
+    .tempo-wrap { background:var(--s1); border:1px solid var(--border); border-radius:var(--rlg); padding:22px 24px; }
+    .tempo-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+    .t-cell { background:var(--s2); border:1px solid var(--border); border-radius:var(--rmd); padding:14px 6px; text-align:center; }
+    .t-num { font-size:38px; font-weight:800; color:var(--accent2); line-height:1; margin-bottom:6px; }
+    .t-phase { font-size:9px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:3px; }
+    .t-desc { font-size:11px; color:var(--text2); line-height:1.4; }
+    .tempo-hint { font-size:12px; color:var(--text3); font-style:italic; }
+
+    /* ── PROGRESSIVE OVERLOAD ── */
+    .prog-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .prog-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--rlg); padding:20px 22px; }
+    .prog-card.rec { border-color:rgba(52,211,153,.22); background:linear-gradient(150deg,var(--s1) 0%,rgba(52,211,153,.03) 100%); }
+    .prog-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:8px; display:flex; align-items:center; gap:7px; }
+    .prog-title i { font-size:15px; color:var(--accent); }
+    .rec-tag {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:10px; font-weight:600; color:var(--gtext);
+      background:var(--gdim); border:1px solid rgba(52,211,153,.2);
+      padding:2px 9px; border-radius:20px; margin-bottom:10px;
+    }
+    .prog-step { font-size:12px; color:var(--text2); line-height:1.65; display:flex; gap:7px; padding:2px 0; }
+    .prog-step b { color:var(--accent); font-weight:700; flex-shrink:0; }
+    .prog-eg { background:var(--s2); border-radius:var(--r); padding:10px 12px; margin-top:12px; }
+    .prog-eg-lbl { font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+    .prog-eg-row { font-size:12px; color:var(--text2); padding:2px 0; display:flex; align-items:center; gap:6px; }
+    .prog-eg-row i { font-size:10px; color:var(--text3); }
+    .prog-eg-row.hi { color:var(--gtext); font-weight:600; }
+    .prog-eg-row.hi i { color:var(--green); }
+
+    /* ── DAY HEADER ── */
+    .day-hdr {
+      display:flex; align-items:center; gap:16px;
+      background:var(--s1); border:1px solid var(--border); border-radius:var(--rxl);
+      padding:20px 22px; margin-bottom:4px; flex-wrap:wrap;
+    }
+    .day-icon {
+      width:50px; height:50px; border-radius:var(--rmd); flex-shrink:0;
+      background:var(--adim); border:1px solid rgba(91,142,240,.2);
+      display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--accent2);
+    }
+    .day-info h2 { font-size:20px; font-weight:800; margin-bottom:2px; }
+    .day-info p { font-size:13px; color:var(--text2); }
+    .day-badges { margin-left:auto; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+
+    /* ── ALERT ── */
+    .alert {
+      display:flex; gap:10px; align-items:flex-start;
+      background:var(--ydim); border:1px solid rgba(251,191,36,.2); border-radius:var(--rmd);
+      padding:12px 16px; font-size:13px; color:var(--ytext); line-height:1.55;
+    }
+    .alert i { font-size:16px; flex-shrink:0; color:var(--yellow); margin-top:1px; }
+
+    .obj-note {
+      display:flex; gap:10px; align-items:flex-start;
+      background:var(--adim); border:1px solid rgba(91,142,240,.18); border-radius:var(--rmd);
+      padding:12px 16px; font-size:13px; color:var(--accent2); line-height:1.6; margin-top:8px;
+    }
+    .obj-note i { font-size:16px; flex-shrink:0; margin-top:1px; }
+    .obj-note a { color:var(--accent2); font-weight:600; }
+    .obj-note a:hover { text-decoration:underline; }
+
+    /* ── WARMUP ── */
+    .wu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:8px; }
+    .wu-pill {
+      display:flex; align-items:center; gap:8px;
+      background:var(--s1); border:1px solid var(--border); border-radius:10px;
+      padding:10px 14px; font-size:12px; font-weight:500; color:var(--text);
+      text-decoration:none; transition:all .15s;
+    }
+    .wu-pill:hover { border-color:var(--accent); color:var(--accent2); background:var(--adim); }
+    .wu-pill.static { pointer-events:none; }
+    .wu-pill i { font-size:13px; color:var(--accent); flex-shrink:0; }
+
+    /* ── EXERCISE CARDS ── */
+    .ex-list { display:flex; flex-direction:column; gap:7px; }
+    .ex-card {
+      display:flex; align-items:center; gap:14px;
+      background:var(--s1); border:1px solid var(--border); border-radius:var(--rlg);
+      padding:14px 16px; transition:all .15s; cursor:pointer; position:relative; overflow:hidden;
+    }
+    .ex-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:0; transition:opacity .15s; border-radius:var(--rlg) 0 0 var(--rlg); }
+    .ex-card:hover { border-color:var(--border2); }
+    .ex-card:hover::before { opacity:1; }
+    .ex-card.done { opacity:.4; }
+    .ex-card.done .ex-name { text-decoration:line-through; color:var(--text2); }
+    .ex-num {
+      width:32px; height:32px; border-radius:50%; flex-shrink:0;
+      background:var(--adim); border:1px solid rgba(91,142,240,.2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; color:var(--accent2);
+    }
+    .ex-card.done .ex-num { background:var(--s2); border-color:var(--border); color:var(--text3); }
+    .ex-body { flex:1; min-width:0; }
+    .ex-name { font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px; }
+    .ex-badges { display:flex; gap:5px; flex-wrap:wrap; }
+    .b { font-size:11px; font-weight:500; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+    .b-acc { background:var(--adim); color:var(--accent2); border:1px solid rgba(91,142,240,.18); }
+    .b-def { background:var(--s2); color:var(--text2); border:1px solid var(--border); }
+    .b-y   { background:var(--ydim); color:var(--ytext); border:1px solid rgba(251,191,36,.15); }
+    .ex-actions { display:flex; gap:6px; flex-shrink:0; }
+    .play {
+      width:36px; height:36px; border-radius:50%;
+      background:var(--accent); border:none; display:flex; align-items:center; justify-content:center;
+      color:#fff; font-size:14px; text-decoration:none; cursor:pointer; transition:all .15s;
+    }
+    .play:hover { background:var(--accent2); transform:scale(1.1); box-shadow:0 0 18px var(--aglow); }
+    .done-mark {
+      width:36px; height:36px; border-radius:50%;
+      background:var(--gdim); border:1px solid rgba(52,211,153,.2);
+      display:none; align-items:center; justify-content:center;
+      color:var(--green); font-size:16px; flex-shrink:0;
+    }
+    .ex-card.done .done-mark { display:flex; }
+    .ex-card.done .ex-actions { display:none; }
+    .tap-hint { font-size:10px; color:var(--text3); margin-top:4px; display:flex; align-items:center; gap:4px; }
+    .tap-hint i { font-size:10px; }
+
+    /* ── STRETCH ── */
+    .str-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:10px; }
+    .str-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--rmd); padding:14px 16px; }
+    .str-zone { font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+    .str-zone i { font-size:12px; color:var(--accent); }
+    .str-lnk {
+      display:flex; align-items:center; gap:6px;
+      font-size:12px; font-weight:500; color:var(--text2); text-decoration:none;
+      padding:4px 0; transition:color .12s;
+    }
+    .str-lnk i { font-size:11px; color:var(--text3); flex-shrink:0; transition:color .12s; }
+    .str-lnk:hover { color:var(--accent2); }
+    .str-lnk:hover i { color:var(--accent); }
+
+    /* ── BADGE INLINE ── */
+    .ib { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; }
+    .ib-g { background:var(--gdim); color:var(--gtext); border:1px solid rgba(52,211,153,.2); }
+    .ib-a { background:var(--adim); color:var(--accent2); border:1px solid rgba(91,142,240,.2); }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:620px){
+      .wrap { padding:0 14px 60px; }
+      .nav { padding:0 14px; gap:10px; }
+      .brand { font-size:11px; }
+      .hero { padding:36px 0 28px; }
+      .stat-n { font-size:22px; }
+      .stat { padding:12px 14px; }
+      .prog-grid { grid-template-columns:1fr; }
+      .tempo-grid { gap:6px; }
+      .t-num { font-size:28px; }
+      .day-hdr { padding:16px 16px; }
+      .day-info h2 { font-size:17px; }
+      .day-badges { margin-left:0; margin-top:4px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <span class="brand">S<em>·</em>W</span>
+  <div class="vr"></div>
+  <div class="tabs">
+    <button class="tab active" onclick="show('concepts',this)"><i class="ti ti-book-2"></i>Concepts</button>
+    <button class="tab" onclick="show('day1',this)"><i class="ti ti-chevrons-up"></i>Day 1 — Push</button>
+    <button class="tab" onclick="show('day2',this)"><i class="ti ti-chevrons-down"></i>Day 2 — Pull</button>
+    <button class="tab" onclick="show('day3',this)"><i class="ti ti-run"></i>Day 3 — Legs</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ══════════════ CONCEPTS ══════════════ -->
+  <div id="concepts" class="panel active">
+
+    <div class="hero">
+      <div class="hero-pill"><i class="ti ti-barbell"></i>Push · Pull · Legs</div>
+      <h1>Workout Plan</h1>
+      <p class="hero-sub">
+        <strong>4–5 days/week</strong> · 60 min sessions · Repeat order: Day 1 → 2 → 3 → 3 → 1
+      </p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-n">3</div><div class="stat-l">Sets</div></div>
+        <div class="stat"><div class="stat-n">10–12</div><div class="stat-l">Reps</div></div>
+        <div class="stat"><div class="stat-n">RPE 8</div><div class="stat-l">Intensity</div></div>
+        <div class="stat"><div class="stat-n">3-0-1-0</div><div class="stat-l">Tempo</div></div>
+        <div class="stat"><div class="stat-n">60 min</div><div class="stat-l">Per session</div></div>
+      </div>
+    </div>
+
+    <!-- RPE -->
+    <p class="slabel">RPE — Rate of Perceived Exertion</p>
+    <div class="rpe-card">
+      <p>A 1–10 scale for how hard you're working. No equipment needed — it's purely how you feel. Use it to pick the right weight for each set.</p>
+      <div class="rpe-highlight">
+        <strong>RPE 8 = your target.</strong> After finishing your 10–12 reps, you should feel like you could do about <em>2 more good, clean reps</em> before hitting failure. If you could do 5 more, go heavier. If you couldn't finish, go lighter.
+      </div>
+      <div class="rpe-bar">
+        <div class="rpe-blk on"></div><div class="rpe-blk on"></div><div class="rpe-blk on"></div>
+        <div class="rpe-blk on"></div><div class="rpe-blk on"></div><div class="rpe-blk on"></div>
+        <div class="rpe-blk on"></div><div class="rpe-blk on"></div>
+        <div class="rpe-blk"></div><div class="rpe-blk"></div>
+      </div>
+      <div class="rpe-cap">8 / 10 — 2 reps left in the tank</div>
+    </div>
+
+    <!-- TEMPO -->
+    <p class="slabel">Tempo — reading the 3-0-1-0 code</p>
+    <div class="tempo-wrap">
+      <div class="tempo-grid">
+        <div class="t-cell">
+          <div class="t-num">3</div>
+          <div class="t-phase">Eccentric</div>
+          <div class="t-desc">Lowering / lengthening phase</div>
+        </div>
+        <div class="t-cell">
+          <div class="t-num">0</div>
+          <div class="t-phase">Bottom pause</div>
+          <div class="t-desc">Fully lengthened — no pause</div>
+        </div>
+        <div class="t-cell">
+          <div class="t-num">1</div>
+          <div class="t-phase">Concentric</div>
+          <div class="t-desc">Lifting / shortening phase</div>
+        </div>
+        <div class="t-cell">
+          <div class="t-num">0</div>
+          <div class="t-phase">Top pause</div>
+          <div class="t-desc">Fully shortened — straight into next rep</div>
+        </div>
+      </div>
+      <p class="tempo-hint">Example — Squat at 3-0-1-0: 3 sec down → no pause at bottom → 1 sec up → no pause at top → repeat.</p>
+    </div>
+
+    <!-- PROGRESSIVE OVERLOAD -->
+    <p class="slabel">Progressive Overload — how to keep growing</p>
+    <div class="prog-grid">
+      <div class="prog-card">
+        <div class="prog-title"><i class="ti ti-trending-up"></i>Method 1 — Increase Weight</div>
+        <div class="prog-step"><b>1.</b> Keep the same rep target every week.</div>
+        <div class="prog-step"><b>2.</b> Once you can hit all reps cleanly, add weight next session.</div>
+        <div class="prog-step"><b>3.</b> All sets taken to failure.</div>
+        <div class="prog-eg">
+          <div class="prog-eg-lbl">Example — Incline DB Press</div>
+          <div class="prog-eg-row"><i class="ti ti-circle"></i>Week 1: 20 kg × 13, 12, 10 reps</div>
+          <div class="prog-eg-row hi"><i class="ti ti-circle-check"></i>Week 2: 22.5 kg × 13, 12, 10 reps ↑</div>
+        </div>
+      </div>
+      <div class="prog-card rec">
+        <div class="prog-title"><i class="ti ti-stars"></i>Method 2 — Double Progression</div>
+        <div class="rec-tag"><i class="ti ti-check"></i>Recommended</div>
+        <div class="prog-step"><b>1.</b> Pick a weight you can do 8 clean reps with.</div>
+        <div class="prog-step"><b>2.</b> Add 1 rep each week until you hit 12.</div>
+        <div class="prog-step"><b>3.</b> Once you hit 12, increase weight and drop back to 8.</div>
+        <div class="prog-step"><b>4.</b> Repeat — both reps and weight climb over time.</div>
+        <div class="prog-eg">
+          <div class="prog-eg-lbl">Example — 8–12 Rep Range</div>
+          <div class="prog-eg-row"><i class="ti ti-circle"></i>Week 1: 22.5 kg × 8</div>
+          <div class="prog-eg-row"><i class="ti ti-circle"></i>Week 2: 22.5 kg × 9</div>
+          <div class="prog-eg-row"><i class="ti ti-circle"></i>Week 3–5: … × 10, 11, 12</div>
+          <div class="prog-eg-row hi"><i class="ti ti-circle-check"></i>Week 6: 25 kg × 8 ↑</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /concepts -->
+
+
+  <!-- ══════════════ DAY 1: PUSH ══════════════ -->
+  <div id="day1" class="panel">
+
+    <div class="day-hdr" style="margin-top:28px;">
+      <div class="day-icon"><i class="ti ti-chevrons-up"></i></div>
+      <div class="day-info">
+        <h2>Day 1 — Push</h2>
+        <p>Chest · Shoulders · Triceps</p>
+      </div>
+      <div class="day-badges">
+        <span class="b b-acc">3 × 10–12</span>
+        <span class="b b-def">RPE 8</span>
+        <span class="b b-def">Tempo 3-0-1-0</span>
+      </div>
+    </div>
+
+    <div class="alert" style="margin-top:10px;">
+      <i class="ti ti-info-circle"></i>
+      <span>Start with <strong>5 min aerobic warm-up</strong> — walking, cycling, or skipping at a comfortable conversational pace.</span>
+    </div>
+
+    <p class="slabel">Dynamic warm-up · 1 set · 8–12 reps each</p>
+    <div class="wu-grid">
+      <a class="wu-pill" href="https://youtu.be/GQOAEBD2OTg" target="_blank"><i class="ti ti-external-link"></i>Wrist CARs</a>
+      <a class="wu-pill" href="https://youtu.be/ghXn2-ZYfU4" target="_blank"><i class="ti ti-external-link"></i>Shoulder CARs</a>
+      <a class="wu-pill" href="https://youtu.be/snzLuyYgbVI" target="_blank"><i class="ti ti-external-link"></i>Thoracic Rotation</a>
+      <a class="wu-pill" href="https://youtu.be/stwYTTPXubo" target="_blank"><i class="ti ti-external-link"></i>Banded Pull Aparts</a>
+      <a class="wu-pill" href="https://youtu.be/b01muAD0_NI" target="_blank"><i class="ti ti-external-link"></i>Wall Push-ups</a>
+    </div>
+
+    <p class="slabel">Main workout · ~40 min · tap a card to mark done</p>
+    <div class="ex-list">
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">1</div>
+        <div class="ex-body">
+          <div class="ex-name">Incline Dumbbell Press</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://www.youtube.com/watch?v=8hVk3FNDqak" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">2</div>
+        <div class="ex-body">
+          <div class="ex-name">Flat Dumbbell Press</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/YQ2s_Y7g5Qk" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">3</div>
+        <div class="ex-body">
+          <div class="ex-name">Shoulder Press</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/HzIiNhHhhtA" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">4</div>
+        <div class="ex-body">
+          <div class="ex-name">Tricep Overhead Extension</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://www.youtube.com/watch?v=Co6jPDKtByg" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">5</div>
+        <div class="ex-body">
+          <div class="ex-name">Lateral Raises</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://www.youtube.com/watch?v=QVfdDQGD9sU" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+    </div>
+
+    <p class="slabel">Cool-down stretches · 1–2 sets · 20–30 sec holds</p>
+    <div class="str-grid">
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-arm"></i>Upper body</div>
+        <a class="str-lnk" href="https://youtu.be/CEQMx4zFwYs" target="_blank"><i class="ti ti-external-link"></i>Doorway Chest Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/nbHOmIYMazk" target="_blank"><i class="ti ti-external-link"></i>Overhead Triceps Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/_BBpwpuxoZs" target="_blank"><i class="ti ti-external-link"></i>Wall Shoulder Flexion</a>
+        <a class="str-lnk" href="https://youtu.be/iJV2PsFzWA" target="_blank"><i class="ti ti-external-link"></i>Wrist Flexion / Extension</a>
+      </div>
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-shoe"></i>Lower body</div>
+        <a class="str-lnk" href="https://youtu.be/Il1L75v6gq0" target="_blank"><i class="ti ti-external-link"></i>Hamstring Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/zi5__zBRzYc" target="_blank"><i class="ti ti-external-link"></i>Quadriceps Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/-Sh_fggFNFA" target="_blank"><i class="ti ti-external-link"></i>Adductor Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/tsGPYSQbZx4" target="_blank"><i class="ti ti-external-link"></i>Hip Flexor Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/t4Zz6-aG8Iw" target="_blank"><i class="ti ti-external-link"></i>Hip 90/90</a>
+      </div>
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-activity"></i>Core</div>
+        <a class="str-lnk" href="https://youtu.be/LIVJZZyZ2qM" target="_blank"><i class="ti ti-external-link"></i>Cat-Cow Pose</a>
+      </div>
+    </div>
+
+  </div><!-- /day1 -->
+
+
+  <!-- ══════════════ DAY 2: PULL ══════════════ -->
+  <div id="day2" class="panel">
+
+    <div class="day-hdr" style="margin-top:28px;">
+      <div class="day-icon"><i class="ti ti-chevrons-down"></i></div>
+      <div class="day-info">
+        <h2>Day 2 — Pull</h2>
+        <p>Back · Biceps · Grip</p>
+      </div>
+      <div class="day-badges">
+        <span class="b b-acc">3 × 10–12</span>
+        <span class="b b-def">RPE 8</span>
+        <span class="b b-def">Tempo 3-0-1-0</span>
+      </div>
+    </div>
+
+    <div class="alert" style="margin-top:10px;">
+      <i class="ti ti-info-circle"></i>
+      <span>Start with <strong>5 min aerobic warm-up</strong> at easy conversational pace.</span>
+    </div>
+
+    <div class="obj-note">
+      <i class="ti ti-target"></i>
+      <span>
+        <strong>Objective-driven work after aerobic warm-up, before dynamic stretching:</strong><br>
+        Australian Pull-ups — 2 sets × 12 reps &nbsp;|&nbsp;
+        <a href="https://www.youtube.com/results?search_query=negative+pull+ups+tutorial" target="_blank">Negative Pull-ups</a> — 3 sets × 5–6 reps
+      </span>
+    </div>
+
+    <p class="slabel">Dynamic warm-up · 1 set · 8–12 reps each</p>
+    <div class="wu-grid">
+      <a class="wu-pill" href="https://youtu.be/3STTSi_jdHk" target="_blank"><i class="ti ti-external-link"></i>Arm Circles</a>
+      <a class="wu-pill" href="https://youtu.be/snzLuyYgbVI" target="_blank"><i class="ti ti-external-link"></i>Thoracic Rotations</a>
+      <a class="wu-pill" href="https://youtube.com/shorts/6NsBmr7tjsQ" target="_blank"><i class="ti ti-external-link"></i>Scapular Movements</a>
+      <a class="wu-pill" href="https://youtu.be/stwYTTPXubo" target="_blank"><i class="ti ti-external-link"></i>Banded Pull Aparts</a>
+      <a class="wu-pill" href="https://youtu.be/gdbhY9XGI40" target="_blank"><i class="ti ti-external-link"></i>Dynamic Lat Stretch</a>
+    </div>
+
+    <p class="slabel">Main workout · ~40 min · tap a card to mark done</p>
+    <div class="ex-list">
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">1</div>
+        <div class="ex-body">
+          <div class="ex-name">Cable Lat Pulldown</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span><span class="b b-y">arch back · pull through body</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://www.youtube.com/watch?v=KAQpJLwg7JQ" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">2</div>
+        <div class="ex-body">
+          <div class="ex-name">Dumbbell Rows</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://x.com/AnshulGains/status/1929852161485119538" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">3</div>
+        <div class="ex-body">
+          <div class="ex-name">Cable Rows</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/NYok5zjbDcw" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">4</div>
+        <div class="ex-body">
+          <div class="ex-name">Bicep Curls</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/cBSD6mQIPQk" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">5</div>
+        <div class="ex-body">
+          <div class="ex-name">Concentration Curls</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/0AUGkch3tzc" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">6</div>
+        <div class="ex-body">
+          <div class="ex-name">Band-assisted Dead Hangs</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 45 sec hold</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtube.com/shorts/dOCQjaasbGs" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+    </div>
+
+    <p class="slabel">Cool-down stretches · 1–2 sets · 20–30 sec holds</p>
+    <div class="str-grid">
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-arm"></i>Upper body</div>
+        <a class="str-lnk" href="https://youtu.be/CEQMx4zFwYs" target="_blank"><i class="ti ti-external-link"></i>Doorway Chest Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/nbHOmIYMazk" target="_blank"><i class="ti ti-external-link"></i>Overhead Triceps Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/_BBpwpuxoZs" target="_blank"><i class="ti ti-external-link"></i>Wall Shoulder Flexion</a>
+        <a class="str-lnk" href="https://youtu.be/iJV2PsFzWA" target="_blank"><i class="ti ti-external-link"></i>Wrist Flexion / Extension</a>
+      </div>
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-shoe"></i>Lower body</div>
+        <a class="str-lnk" href="https://youtu.be/Il1L75v6gq0" target="_blank"><i class="ti ti-external-link"></i>Hamstring Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/zi5__zBRzYc" target="_blank"><i class="ti ti-external-link"></i>Quadriceps Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/-Sh_fggFNFA" target="_blank"><i class="ti ti-external-link"></i>Adductor Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/tsGPYSQbZx4" target="_blank"><i class="ti ti-external-link"></i>Hip Flexor Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/t4Zz6-aG8Iw" target="_blank"><i class="ti ti-external-link"></i>Hip 90/90</a>
+      </div>
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-activity"></i>Core</div>
+        <a class="str-lnk" href="https://youtu.be/LIVJZZyZ2qM" target="_blank"><i class="ti ti-external-link"></i>Cat-Cow Pose</a>
+      </div>
+    </div>
+
+  </div><!-- /day2 -->
+
+
+  <!-- ══════════════ DAY 3: LEGS ══════════════ -->
+  <div id="day3" class="panel">
+
+    <div class="day-hdr" style="margin-top:28px;">
+      <div class="day-icon"><i class="ti ti-run"></i></div>
+      <div class="day-info">
+        <h2>Day 3 — Legs</h2>
+        <p>Quads · Hamstrings · Glutes · Calves</p>
+      </div>
+      <div class="day-badges">
+        <span class="b b-acc">3 × 10–12</span>
+        <span class="b b-def">RPE 8</span>
+        <span class="b b-def">Tempo 3-0-1-0</span>
+      </div>
+    </div>
+
+    <div class="alert" style="margin-top:10px;">
+      <i class="ti ti-info-circle"></i>
+      <span>Start with <strong>5 min aerobic warm-up</strong> — walking, cycling, or skipping at a comfortable conversational pace.</span>
+    </div>
+
+    <p class="slabel">Dynamic warm-up · 1 set · 8–12 reps each</p>
+    <div class="wu-grid">
+      <a class="wu-pill" href="https://youtu.be/difYoBtZi2s" target="_blank"><i class="ti ti-external-link"></i>Leg Swings (fwd/back)</a>
+      <a class="wu-pill" href="https://youtu.be/difYoBtZi2s" target="_blank"><i class="ti ti-external-link"></i>Leg Swings (side)</a>
+      <a class="wu-pill" href="https://youtu.be/Xp33YgPZgns" target="_blank"><i class="ti ti-external-link"></i>Glute Bridges</a>
+      <div class="wu-pill static"><i class="ti ti-run"></i>Bodyweight Squats</div>
+      <a class="wu-pill" href="https://youtu.be/L8fvypPrzzs" target="_blank"><i class="ti ti-external-link"></i>Walking Lunges</a>
+      <a class="wu-pill" href="https://youtu.be/Xjo_fY9Hl9w" target="_blank"><i class="ti ti-external-link"></i>Goblet Squat warm-up</a>
+    </div>
+
+    <p class="slabel">Main workout · ~40 min · tap a card to mark done</p>
+    <div class="ex-list">
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">1</div>
+        <div class="ex-body">
+          <div class="ex-name">Goblet Squat</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/Xjo_fY9Hl9w" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">2</div>
+        <div class="ex-body">
+          <div class="ex-name">Romanian Deadlift (RDL)</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span><span class="b b-def">Dumbbells</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/hQgFixeXdZo" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">3</div>
+        <div class="ex-body">
+          <div class="ex-name">Dumbbell Glute Bridges / Hip Thrusts</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions">
+          <a class="play" href="https://youtube.com/shorts/6TXTf4pGiV0" target="_blank" onclick="event.stopPropagation()" title="Video 1"><i class="ti ti-player-play-filled"></i></a>
+          <a class="play" href="https://youtube.com/shorts/bkvrh2Y1gAM" target="_blank" onclick="event.stopPropagation()" title="Video 2" style="background:var(--s3);border:1px solid var(--border2);color:var(--accent2);font-size:11px;font-weight:700;">2</a>
+        </div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">4</div>
+        <div class="ex-body">
+          <div class="ex-name">Bulgarian Split Squats</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://www.youtube.com/watch?v=yfATLQD0OJc" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">5</div>
+        <div class="ex-body">
+          <div class="ex-name">Dumbbell Step-ups</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/7AtIjRQqVA" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+      <div class="ex-card" onclick="toggleDone(this)">
+        <div class="ex-num">6</div>
+        <div class="ex-body">
+          <div class="ex-name">Calf Raises</div>
+          <div class="ex-badges"><span class="b b-acc">3 × 10–12</span><span class="b b-def">RPE 8</span><span class="b b-def">3-0-1-0</span><span class="b b-y">elevated surface</span></div>
+        </div>
+        <div class="done-mark"><i class="ti ti-check"></i></div>
+        <div class="ex-actions"><a class="play" href="https://youtu.be/c5Kv6-fnTj8" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-player-play-filled"></i></a></div>
+      </div>
+    </div>
+
+    <p class="slabel">Cool-down stretches · 1–2 sets · 20–30 sec holds</p>
+    <div class="str-grid">
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-arm"></i>Upper body</div>
+        <a class="str-lnk" href="https://youtu.be/CEQMx4zFwYs" target="_blank"><i class="ti ti-external-link"></i>Doorway Chest Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/nbHOmIYMazk" target="_blank"><i class="ti ti-external-link"></i>Overhead Triceps Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/_BBpwpuxoZs" target="_blank"><i class="ti ti-external-link"></i>Wall Shoulder Flexion</a>
+        <a class="str-lnk" href="https://youtu.be/iJV2PsFzWA" target="_blank"><i class="ti ti-external-link"></i>Wrist Flexion / Extension</a>
+      </div>
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-shoe"></i>Lower body</div>
+        <a class="str-lnk" href="https://youtu.be/Il1L75v6gq0" target="_blank"><i class="ti ti-external-link"></i>Hamstring Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/zi5__zBRzYc" target="_blank"><i class="ti ti-external-link"></i>Quadriceps Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/-Sh_fggFNFA" target="_blank"><i class="ti ti-external-link"></i>Adductor Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/tsGPYSQbZx4" target="_blank"><i class="ti ti-external-link"></i>Hip Flexor Stretch</a>
+        <a class="str-lnk" href="https://youtu.be/t4Zz6-aG8Iw" target="_blank"><i class="ti ti-external-link"></i>Hip 90/90</a>
+      </div>
+      <div class="str-card">
+        <div class="str-zone"><i class="ti ti-activity"></i>Core</div>
+        <a class="str-lnk" href="https://youtu.be/LIVJZZyZ2qM" target="_blank"><i class="ti ti-external-link"></i>Cat-Cow Pose</a>
+      </div>
+    </div>
+
+  </div><!-- /day3 -->
+
+</div><!-- /wrap -->
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleDone(card) {
+    card.classList.toggle('done');
+  }
+</script>
+</body>
+</html>
